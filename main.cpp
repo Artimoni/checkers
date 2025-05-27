@@ -1,4 +1,4 @@
-﻿#include "board.h"
+#include "board.h"
 #include "solver.h"
 #include <iostream>
 #include <fstream>
@@ -9,6 +9,8 @@
 int main() {
     SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
+    std::cout << "Программа запущена\n";
+
     std::ifstream input("input.txt");
     if (!input) {
         std::cerr << "Не удалось открыть input.txt\n";
@@ -20,6 +22,7 @@ int main() {
         std::cerr << "Ошибка при загрузке позиции\n";
         return 1;
     }
+    std::cout << "Позиция загружена\n";
 
     GameSolver solver(board);
     std::vector<std::string> resultMoves;
@@ -39,5 +42,6 @@ int main() {
         std::cout << "Решение не найдено за 2-3 хода\n";
     }
 
+    std::cout << "Программа завершена\n";
     return 0;
 }
