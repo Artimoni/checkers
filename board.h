@@ -11,7 +11,7 @@ struct Checker {
     int row, col;
     bool isKing;
 
-    Checker(Color c, int r, int col, bool king) : color(c), row(r), col(col), isKing(king) {}
+    Checker(Color c, int r, int col, bool king = false) : color(c), row(r), col(col), isKing(king) {}
 };
 
 class Board {
@@ -25,6 +25,8 @@ public:
     std::vector<std::shared_ptr<Checker>> getAllCheckers(Color color) const;
     bool isInside(int row, int col) const;
     void promoteToKingIfNeeded(std::shared_ptr<Checker>& checker);
+    bool isBlackCell(int row, int col) const;
+    bool checkPositionCorrectness() const;
 
 private:
     std::shared_ptr<Checker> board[8][8];
