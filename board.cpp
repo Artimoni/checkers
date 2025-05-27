@@ -1,6 +1,7 @@
 #include "board.h"
 #include <sstream>
 #include <cctype>
+#include <iostream>
 
 Board::Board() {
     for (int r = 0; r < 8; ++r)
@@ -18,6 +19,8 @@ std::shared_ptr<Checker> Board::getChecker(int row, int col) const {
 }
 
 void Board::moveChecker(int fromRow, int fromCol, int toRow, int toCol) {
+    if (!isInside(fromRow, fromCol) || !isInside(toRow, toCol)) return;
+    if (!board[fromRow][fromCol]) return;
     board[toRow][toCol] = board[fromRow][fromCol];
     board[fromRow][fromCol] = nullptr;
     board[toRow][toCol]->row = toRow;
@@ -26,6 +29,7 @@ void Board::moveChecker(int fromRow, int fromCol, int toRow, int toCol) {
 }
 
 void Board::removeChecker(int row, int col) {
+    if (!isInside(row, col)) return;
     board[row][col] = nullptr;
 }
 
@@ -44,6 +48,23 @@ int letterToCol(char letter) {
 
 int numberToRow(char number) {
     return 8 - (number - '0');
+}
+
+bool Board::isBlackCell(int row, int col) const {
+    return (row + col) % 2 == 1;
+}
+
+bool Board::checkPositionCorrectness() const {
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (board[r][c] && !isBlackCell(r, c)) {
+                std::cerr << "Ошибка: шашка на белой клетке ("
+                    << (char)('A' + c) << (8 - r) << ")\n";
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 bool Board::loadFromFile(std::istream& input) {
@@ -83,10 +104,26 @@ bool Board::loadFromFile(std::istream& input) {
         }
     }
 
+    std::cout << "Загружены шашки:\n";
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (board[r][c]) {
+                std::cout << (char)('A' + c) << (8 - r) << " "
+                    << (board[r][c]->color == Color::WHITE ? "белая" : "чёрная")
+                    << (board[r][c]->isKing ? " дамка" : "") << "\n";
+            }
+        }
+    }
+
+    if (!checkPositionCorrectness()) {
+        std::cerr << "Некорректная расстановка шашек!\n";
+        return false;
+    }
     return true;
 }
 
 void Board::promoteToKingIfNeeded(std::shared_ptr<Checker>& checker) {
+    if (!checker) return;
     if (checker->isKing) return;
     if ((checker->color == Color::WHITE && checker->row == 0) ||
         (checker->color == Color::BLACK && checker->row == 7)) {
